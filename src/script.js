@@ -8,7 +8,9 @@ const scene = new THREE.Scene();
 
 // Object
 const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshBasicMaterial({ color: "purple" });
+const material = new THREE.MeshBasicMaterial({
+  color: "mediumpurple",
+});
 const mesh = new THREE.Mesh(geometry, material);
 scene.add(mesh);
 
@@ -31,4 +33,24 @@ const renderer = new THREE.WebGLRenderer({
   canvas: canvas,
 });
 renderer.setSize(sizes.width, sizes.height);
-renderer.render(scene, camera);
+
+// Time
+let time = Date.now();
+
+// Animations
+const tick = () => {
+  // Time
+  const currentTime = Date.now();
+  const deltaTime = currentTime - time;
+  time = currentTime;
+
+  // Update objects
+  mesh.rotation.y += 0.001 * deltaTime;
+
+  // Render
+  renderer.render(scene, camera);
+
+  window.requestAnimationFrame(tick);
+};
+
+tick();
