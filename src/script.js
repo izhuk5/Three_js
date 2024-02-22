@@ -18,10 +18,6 @@ scene.add(mesh);
 // mesh.scale.y = 1;
 mesh.scale.set(1.5, 1, 0.8);
 
-// Axes helper
-const axisHelp = new THREE.AxesHelper();
-scene.add(axisHelp);
-
 // Sizes
 const sizes = {
   width: 800,
@@ -38,6 +34,10 @@ mesh.rotation.x = Math.PI * 0.25;
 // mesh.position.x = 0.7;
 // mesh.position.z = 1;
 mesh.position.set(3, -0.6, -1);
+
+// Axes helper
+const axisHelp = new THREE.AxesHelper();
+scene.add(axisHelp);
 
 // Camera
 const camera = new THREE.PerspectiveCamera(
