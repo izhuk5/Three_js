@@ -6,6 +6,7 @@ import GUI from "lil-gui";
 const gui = new GUI();
 
 const cylinderSmallParams = {
+  radius: 0.5,
   height: 0.2,
 };
 
@@ -13,9 +14,7 @@ const cylinderSmallFolder = gui.addFolder("Cylinder Small");
 cylinderSmallFolder
   .add(cylinderSmallParams, "height", 0.1, 1, 0.1)
   .name("Height")
-  .onChange(() => {
-    updateCylinderSmall();
-  });
+  .onChange(updateCylinderSmall);
 
 const sphereParams = {
   radius: 0.3,
@@ -53,6 +52,20 @@ boxFolder
     updateCube();
   });
 
+const coneParams = {
+  initialRadius: 0.2,
+  initialHeight: 0.3,
+  scale: 1,
+};
+
+const coneFolder = gui.addFolder("Cone");
+coneFolder
+  .add(coneParams, "scale", 0.5, 2, 0.1)
+  .name("Scale")
+  .onChange(() => {
+    updateCone();
+  });
+
 // Canvas
 const canvas = document.querySelector("canvas.webgl");
 
@@ -78,13 +91,24 @@ const cylinderSmall = new THREE.Mesh(
 cylinderSmall.rotateX(300);
 
 function updateCylinderSmall() {
+  // Рассчитываем изменение высоты
+  const deltaHeight =
+    cylinderSmallParams.height - cylinderSmall.geometry.parameters.height;
+
+  // Обновляем геометрию cylinderSmall
   cylinderSmall.geometry.dispose();
   cylinderSmall.geometry = new THREE.CylinderGeometry(
-    0.5,
-    0.5,
+    cylinderSmallParams.radius,
+    cylinderSmallParams.radius,
     cylinderSmallParams.height,
     32
   );
+
+  // Смещаем другие объекты по оси Y
+  sphere.position.y += deltaHeight / 2;
+  cylinderMedium.position.y += deltaHeight / 2;
+  cube.position.y += deltaHeight / 2;
+  cone.position.y += deltaHeight / 2;
 }
 
 const cylinderMedium = new THREE.Mesh(
@@ -126,6 +150,15 @@ function updateCube() {
 const cone = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.3, 32), material);
 cone.position.y = 1.51;
 cone.rotateX(Math.PI);
+
+function updateCone() {
+  cone.geometry.dispose();
+  cone.geometry = new THREE.ConeGeometry(
+    coneParams.initialRadius * coneParams.scale,
+    coneParams.initialHeight * coneParams.scale,
+    32
+  );
+}
 
 const plane = new THREE.Mesh(new THREE.PlaneGeometry(5, 5), material);
 plane.rotation.x = -Math.PI * 0.5;
@@ -195,13 +228,3 @@ const tick = () => {
 tick();
 
 // Update Size
-
-function updateSize(selectedObject, newSize) {
-  selectedObject.scale.set(newSize, newSize, newSize);
-  if (selectedObject === cube) {
-    const sphereSize = Math.max(newSize * 0.8, 0.1);
-    sphere.scale.set(sphereSize, sphereSize, sphereSize);
-  }
-
-  renderer.render(scene, camera);
-}
