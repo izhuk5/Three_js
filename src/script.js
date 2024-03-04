@@ -5,6 +5,54 @@ import GUI from "lil-gui";
 // Debug
 const gui = new GUI();
 
+const cylinderSmallParams = {
+  height: 0.2,
+};
+
+const cylinderSmallFolder = gui.addFolder("Cylinder Small");
+cylinderSmallFolder
+  .add(cylinderSmallParams, "height", 0.1, 1, 0.1)
+  .name("Height")
+  .onChange(() => {
+    updateCylinderSmall();
+  });
+
+const sphereParams = {
+  radius: 0.3,
+};
+
+const sphereFolder = gui.addFolder("Sphere");
+sphereFolder
+  .add(sphereParams, "radius", 0.1, 1, 0.1)
+  .name("Radius")
+  .onChange(() => {
+    updateSphere();
+  });
+
+const cylinderMediumParams = {
+  radius: 0.5,
+};
+
+const cylinderMediumFolder = gui.addFolder("Cylinder Medium");
+cylinderMediumFolder
+  .add(cylinderMediumParams, "radius", 0.1, 1, 0.1)
+  .name("Radius")
+  .onChange(() => {
+    updateCylinderMedium();
+  });
+
+const boxParams = {
+  size: 0.25,
+};
+
+const boxFolder = gui.addFolder("Cube");
+boxFolder
+  .add(boxParams, "size", 0.01, 1, 0.05)
+  .name("Cube size")
+  .onChange(() => {
+    updateCube();
+  });
+
 // Canvas
 const canvas = document.querySelector("canvas.webgl");
 
@@ -12,47 +60,9 @@ const canvas = document.querySelector("canvas.webgl");
 const scene = new THREE.Scene();
 
 // Lights
-const ambientLight = new THREE.AmbientLight("white", 1);
-// scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight("mediumpurple", 0.9);
-directionalLight.position.set(1, 0.25, 0);
-scene.add(directionalLight);
-
-const hemisphereLight = new THREE.HemisphereLight("pink", "blue", 0.9);
-// scene.add(hemisphereLight);
-
-const pointLight = new THREE.PointLight("purple", 1.5);
-pointLight.position.set(1, -0.5, 1);
-// scene.add(pointLight);
-
-const rectAreaLight = new THREE.RectAreaLight(0x4e00ff, 5, 1, 1);
-// scene.add(rectAreaLight);
-
-const spotLight = new THREE.SpotLight(
-  "orange",
-  4.5,
-  10,
-  Math.PI * 0.1,
-  0.25,
-  1
-);
-// scene.add(spotLight);
-
-gui.add(ambientLight, "intensity").min(0).max(3).step(0.001);
-
-// Helpers
-
-// const hemisphereLightHelper = new THREE.HemisphereLightHelper(
-//   hemisphereLight,
-//   0.2
-// );
-
-const directionalLightHelper = new THREE.DirectionalLightHelper(
-  directionalLight,
-  0.2
-);
-scene.add(directionalLightHelper);
+const hemisphereLight = new THREE.HemisphereLight("white", "grey", 0.9);
+scene.add(hemisphereLight);
 
 // Objects
 
@@ -61,22 +71,67 @@ const material = new THREE.MeshStandardMaterial();
 material.roughness = 0.4;
 
 // Objects
-const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.5, 32, 32), material);
-sphere.position.x = -1.5;
-
-const cube = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.75, 0.75), material);
-
-const torus = new THREE.Mesh(
-  new THREE.TorusGeometry(0.3, 0.2, 32, 64),
+const cylinderSmall = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.5, 0.5, 0.2, 32),
   material
 );
-torus.position.x = 1.5;
+cylinderSmall.rotateX(300);
+
+function updateCylinderSmall() {
+  cylinderSmall.geometry.dispose();
+  cylinderSmall.geometry = new THREE.CylinderGeometry(
+    0.5,
+    0.5,
+    cylinderSmallParams.height,
+    32
+  );
+}
+
+const cylinderMedium = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.5, 0.5, 0.02, 32),
+  material
+);
+cylinderMedium.position.y = 1.11;
+
+function updateCylinderMedium() {
+  cylinderMedium.geometry.dispose();
+  cylinderMedium.geometry = new THREE.CylinderGeometry(
+    cylinderMediumParams.radius,
+    cylinderMediumParams.radius,
+    0.02,
+    32
+  );
+}
+
+const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.3, 16, 16), material);
+sphere.position.y = 0.8;
+
+function updateSphere() {
+  sphere.geometry.dispose();
+  sphere.geometry = new THREE.SphereGeometry(sphereParams.radius, 16, 16);
+}
+
+const cube = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.25, 0.25), material);
+cube.position.y = 1.24;
+
+function updateCube() {
+  cube.geometry.dispose();
+  cube.geometry = new THREE.BoxGeometry(
+    boxParams.size,
+    boxParams.size,
+    boxParams.size
+  );
+}
+
+const cone = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.3, 32), material);
+cone.position.y = 1.51;
+cone.rotateX(Math.PI);
 
 const plane = new THREE.Mesh(new THREE.PlaneGeometry(5, 5), material);
 plane.rotation.x = -Math.PI * 0.5;
-plane.position.y = -0.65;
+plane.position.y = -0.5;
 
-scene.add(sphere, cube, torus, plane);
+scene.add(plane, sphere, cube, cone, cylinderSmall, cylinderMedium);
 
 // Sizes
 const sizes = {
@@ -127,17 +182,6 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 const clock = new THREE.Clock();
 
 const tick = () => {
-  const elapsedTime = clock.getElapsedTime();
-
-  // Update objects
-  sphere.rotation.y = 0.1 * elapsedTime;
-  cube.rotation.y = 0.1 * elapsedTime;
-  torus.rotation.y = 0.1 * elapsedTime;
-
-  sphere.rotation.x = 0.15 * elapsedTime;
-  cube.rotation.x = 0.15 * elapsedTime;
-  torus.rotation.x = 0.15 * elapsedTime;
-
   // Update controls
   controls.update();
 
@@ -149,3 +193,15 @@ const tick = () => {
 };
 
 tick();
+
+// Update Size
+
+function updateSize(selectedObject, newSize) {
+  selectedObject.scale.set(newSize, newSize, newSize);
+  if (selectedObject === cube) {
+    const sphereSize = Math.max(newSize * 0.8, 0.1);
+    sphere.scale.set(sphereSize, sphereSize, sphereSize);
+  }
+
+  renderer.render(scene, camera);
+}
