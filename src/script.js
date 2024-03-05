@@ -7,13 +7,12 @@ const gui = new GUI();
 
 const cylinderSmallParams = {
   radius: 0.5,
-  height: 0.2,
 };
 
 const cylinderSmallFolder = gui.addFolder("Cylinder Small");
 cylinderSmallFolder
-  .add(cylinderSmallParams, "height", 0.1, 1, 0.1)
-  .name("Height")
+  .add(cylinderSmallParams, "radius", 0.1, 1, 0.1)
+  .name("Radius")
   .onChange(updateCylinderSmall);
 
 const sphereParams = {
@@ -90,31 +89,41 @@ const cylinderSmall = new THREE.Mesh(
 );
 cylinderSmall.rotateX(300);
 
-function updateCylinderSmall() {
-  // Рассчитываем изменение высоты
-  const deltaHeight =
-    cylinderSmallParams.height - cylinderSmall.geometry.parameters.height;
+// function updateCylinderSmall() {
+//   cylinderSmall.geometry.dispose();
+//   cylinderSmall.geometry = new THREE.CylinderGeometry(
+//     cylinderSmallParams.radius,
+//     cylinderSmallParams.radius,
+//     0.2,
+//     32
+//   );
+// }
 
-  // Обновляем геометрию cylinderSmall
+let previousRadius = cylinderSmallParams.radius;
+
+function updateCylinderSmall() {
   cylinderSmall.geometry.dispose();
   cylinderSmall.geometry = new THREE.CylinderGeometry(
     cylinderSmallParams.radius,
     cylinderSmallParams.radius,
-    cylinderSmallParams.height,
+    0.2,
     32
   );
 
-  // Смещаем другие объекты по оси Y
-  sphere.position.y += deltaHeight / 2;
-  cylinderMedium.position.y += deltaHeight / 2;
-  cube.position.y += deltaHeight / 2;
-  cone.position.y += deltaHeight / 2;
+  if (cylinderSmallParams.radius > previousRadius) {
+    sphere.position.y += 0.01;
+  } else if (cylinderSmallParams.radius < previousRadius) {
+    sphere.position.y -= 0.01;
+  }
+
+  previousRadius = cylinderSmallParams.radius;
 }
 
 const cylinderMedium = new THREE.Mesh(
   new THREE.CylinderGeometry(0.5, 0.5, 0.02, 32),
   material
 );
+
 cylinderMedium.position.y = 1.11;
 
 function updateCylinderMedium() {
