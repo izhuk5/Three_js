@@ -89,16 +89,6 @@ const cylinderSmall = new THREE.Mesh(
 );
 cylinderSmall.rotateX(300);
 
-// function updateCylinderSmall() {
-//   cylinderSmall.geometry.dispose();
-//   cylinderSmall.geometry = new THREE.CylinderGeometry(
-//     cylinderSmallParams.radius,
-//     cylinderSmallParams.radius,
-//     0.2,
-//     32
-//   );
-// }
-
 let previousRadius = cylinderSmallParams.radius;
 
 function updateCylinderSmall() {
@@ -111,9 +101,25 @@ function updateCylinderSmall() {
   );
 
   if (cylinderSmallParams.radius > previousRadius) {
-    sphere.position.y += 0.01;
+    sphere.position.y += 0.1;
+    cylinderMedium.position.y += 0.1;
+    cube.position.y += 0.115;
+    cube.geometry = new THREE.BoxGeometry(
+      (boxParams.size += 0.01),
+      (boxParams.size += 0.01),
+      (boxParams.size += 0.01)
+    );
+    cone.position.y += 0.14;
   } else if (cylinderSmallParams.radius < previousRadius) {
-    sphere.position.y -= 0.01;
+    sphere.position.y -= 0.1;
+    cylinderMedium.position.y -= 0.1;
+    cube.position.y -= 0.115;
+    cube.geometry = new THREE.BoxGeometry(
+      (boxParams.size -= 0.01),
+      (boxParams.size -= 0.01),
+      (boxParams.size -= 0.01)
+    );
+    cone.position.y -= 0.14;
   }
 
   previousRadius = cylinderSmallParams.radius;
@@ -235,5 +241,3 @@ const tick = () => {
 };
 
 tick();
-
-// Update Size
